@@ -1,0 +1,172 @@
+﻿@model HotelBookingSystem.Models.Booking
+
+@{
+    ViewData["Title"] = "Book Room";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">Complete Your Booking</h1>
+            <p class="text-gray-600">Please fill in your details to complete the booking</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Room Details -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-xl mb-4">Room Details</h2>
+
+                    <div class="mb-6">
+                        <div class="rounded-lg overflow-hidden mb-4">
+                            <img src="@Model.Room.ImageUrl"
+                                 alt="Room @Model.Room.RoomNumber"
+                                 class="w-full h-48 object-cover"
+                                 onerror="this.src='/images/rooms/default.jpg'">
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Room Number:</span>
+                                <span class="font-semibold">@Model.Room.RoomNumber</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Room Type:</span>
+                                <span class="badge badge-primary">@Model.Room.RoomType</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Price per Night:</span>
+                                <span class="font-semibold">$@Model.Room.PricePerNight</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Max Guests:</span>
+                                <span class="font-semibold">@Model.Room.MaxGuests</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Price Summary -->
+                    <div class="bg-base-200 rounded-lg p-4">
+                        <h3 class="font-semibold mb-3">Price Summary</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">@Model.NumberOfNights nights × $@Model.Room.PricePerNight</span>
+                                <span>$@(Model.Room.PricePerNight* Model.NumberOfNights)</span>
+                            </div>
+                            <div class="border-t pt-2">
+                                <div class="flex justify-between font-semibold">
+                                    <span>Total Amount:</span>
+                                    <span class="text-lg">$@Model.TotalAmount</span>
+                                </div>
+                                <div class="flex justify-between text-sm text-gray-600 mt-1">
+                                    <span>Advance Payment (50%):</span>
+                                    <span class="font-medium">$@(Model.TotalAmount * 0.5m)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking Form -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h2 class="card-title text-xl mb-4">Your Information</h2>
+
+                    <form asp-action="Create" method="post">
+                        <input type="hidden" asp-for="RoomId" />
+                        <input type="hidden" asp-for="CheckInDate" />
+                        <input type="hidden" asp-for="CheckOutDate" />
+                        <input type="hidden" asp-for="NumberOfGuests" />
+
+                        <div class="space-y-4">
+                            <div class="form-control">
+                                <label class="label" asp-for="CustomerName">
+                                    <span class="label-text">Full Name *</span>
+                                </label>
+                                <input type="text" asp-for="CustomerName"
+                                       class="input input-bordered"
+                                       placeholder="John Doe" required>
+                                <span asp-validation-for="CustomerName" class="text-error text-sm"></span>
+                            </div>
+
+                            <div class="form-control">
+                                <label class="label" asp-for="CustomerEmail">
+                                    <span class="label-text">Email Address *</span>
+                                </label>
+                                <input type="email" asp-for="CustomerEmail"
+                                       class="input input-bordered"
+                                       placeholder="john@example.com" required>
+                                <span asp-validation-for="CustomerEmail" class="text-error text-sm"></span>
+                            </div>
+
+                            <div class="form-control">
+                                <label class="label" asp-for="CustomerPhone">
+                                    <span class="label-text">Phone Number *</span>
+                                </label>
+                                <input type="tel" asp-for="CustomerPhone"
+                                       class="input input-bordered"
+                                       placeholder="+1234567890" required>
+                                <span asp-validation-for="CustomerPhone" class="text-error text-sm"></span>
+                            </div>
+
+                            <div class="form-control">
+                                <label class="label" asp-for="SpecialRequests">
+                                    <span class="label-text">Special Requests</span>
+                                </label>
+                                <textarea asp-for="SpecialRequests"
+                                          class="textarea textarea-bordered"
+                                          rows="3"
+                                          placeholder="Any special requirements or requests..."></textarea>
+                            </div>
+
+                            <!-- Booking Dates Summary -->
+                            <div class="bg-base-200 rounded-lg p-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-gray-600">Check-in:</span>
+                                    <span class="font-semibold">@Model.CheckInDate.ToString("MMM dd, yyyy")</span>
+                                </div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-gray-600">Check-out:</span>
+                                    <span class="font-semibold">@Model.CheckOutDate.ToString("MMM dd, yyyy")</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">Duration:</span>
+                                    <span class="font-semibold">@Model.NumberOfNights nights</span>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <div class="flex">
+                                    <i class="fas fa-info-circle mt-1 mr-3"></i>
+                                    <div>
+                                        <p class="font-medium mb-1">Important Information</p>
+                                        <p class="text-sm">
+                                            You'll be required to pay 50% of the total amount ($@(Model.TotalAmount * 0.5m))
+                                            as advance payment. The remaining amount can be paid at check-in.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-control mt-6">
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    <i class="fas fa-lock mr-2"></i> Proceed to Payment
+                                </button>
+                                <a href="/Room/Availability" class="btn btn-ghost btn-block mt-2">
+                                    <i class="fas fa-arrow-left mr-2"></i> Back to Search
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

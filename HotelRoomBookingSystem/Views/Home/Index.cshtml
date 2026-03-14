@@ -1,0 +1,159 @@
+﻿@model List<HotelBookingSystem.Models.Room>
+
+@{
+    ViewData["Title"] = "Hotel Booking System";
+}
+
+<div class="hero bg-base-200 min-h-[60vh] flex items-center">
+    <div class="hero-content text-center">
+        <div class="max-w-3xl">
+            <h1 class="text-5xl font-bold mb-6">Welcome to Luxury Stays</h1>
+            <p class="text-xl mb-8">Book your perfect stay with the best amenities and services</p>
+            <a href="/Room/Availability" class="btn btn-primary btn-lg">
+                <i class="fas fa-search mr-2"></i> Find Available Rooms
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-12">
+    <!-- Search Box -->
+    <div class="card bg-base-100 shadow-xl mb-12">
+        <div class="card-body">
+            <h2 class="card-title text-2xl mb-6">Find Your Perfect Room</h2>
+            <form action="/Room/Availability" method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="label">
+                        <span class="label-text">Check-in</span>
+                    </label>
+                    <input type="date" name="checkIn"
+                           class="input input-bordered w-full"
+                           value="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")"
+                           min="@DateTime.Today.ToString("yyyy-MM-dd")">
+                </div>
+                <div>
+                    <label class="label">
+                        <span class="label-text">Check-out</span>
+                    </label>
+                    <input type="date" name="checkOut"
+                           class="input input-bordered w-full"
+                           value="@DateTime.Today.AddDays(2).ToString("yyyy-MM-dd")"
+                           min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")">
+                </div>
+                <div>
+                    <label class="label">
+                        <span class="label-text">Room Type</span>
+                    </label>
+                    <select name="roomType" class="select select-bordered w-full">
+                        <option value="All">All Types</option>
+                        <option value="Single">Single</option>
+                        <option value="Double">Double</option>
+                        <option value="Suite">Suite</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="btn btn-primary w-full">
+                        <i class="fas fa-search mr-2"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Featured Rooms -->
+    <h2 class="text-3xl font-bold mb-8 text-center">Featured Rooms</h2>
+
+    @if (Model.Any())
+    {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+            @foreach (var room in Model)
+            {
+                <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+                    <figure class="h-48">
+                        <img src="@room.ImageUrl"
+                             alt="Room @room.RoomNumber"
+                             class="w-full h-full object-cover"
+                             onerror="this.src='/images/rooms/default.jpg'">
+                    </figure>
+                    <div class="card-body">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="card-title text-xl">Room @room.RoomNumber</h3>
+                            <span class="badge badge-primary">@room.RoomType</span>
+                        </div>
+                        <p class="text-gray-600 mb-4 line-clamp-2">@room.Description</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-2xl font-bold">$@room.PricePerNight</span>
+                                <span class="text-gray-500">/night</span>
+                            </div>
+                            <a href="/Room/Details/@room.Id" class="btn btn-primary">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-12">
+            <div class="bg-base-200 rounded-xl p-8 max-w-md mx-auto">
+                <i class="fas fa-bed text-4xl text-gray-400 mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-700 mb-2">No Rooms Available</h3>
+                <p class="text-gray-500">Please check back later or contact us.</p>
+            </div>
+        </div>
+    }
+
+    <!-- Features -->
+    <div class="bg-base-200 rounded-2xl p-8 mb-12">
+        <h2 class="text-3xl font-bold text-center mb-10">Why Choose Us?</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center">
+                <div class="bg-primary text-primary-content w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shield-alt text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Secure Payment</h3>
+                <p class="text-gray-600">Safe and encrypted payment processing</p>
+            </div>
+            <div class="text-center">
+                <div class="bg-primary text-primary-content w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-calendar-check text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Easy Booking</h3>
+                <p class="text-gray-600">Simple booking process with instant confirmation</p>
+            </div>
+            <div class="text-center">
+                <div class="bg-primary text-primary-content w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-headset text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">24/7 Support</h3>
+                <p class="text-gray-600">Round-the-clock customer support</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set minimum dates for date inputs
+            const today = new Date().toISOString().split('T')[0];
+            const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+
+            const checkInInput = document.querySelector('input[name="checkIn"]');
+            const checkOutInput = document.querySelector('input[name="checkOut"]');
+
+            if (checkInInput) {
+                checkInInput.min = today;
+                checkInInput.value = tomorrow;
+            }
+
+            if (checkOutInput) {
+                checkOutInput.min = tomorrow;
+                checkOutInput.value = new Date(Date.now() + 172800000).toISOString().split('T')[0];
+            }
+        });
+    </script>
+}

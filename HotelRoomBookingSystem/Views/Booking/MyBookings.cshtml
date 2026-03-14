@@ -1,0 +1,178 @@
+﻿@model List<HotelBookingSystem.Models.Booking>
+
+@{
+    ViewData["Title"] = "My Bookings";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">My Bookings</h1>
+            <p class="text-gray-600">View and manage all your hotel bookings</p>
+        </div>
+
+        <!-- Search Form -->
+        <div class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body">
+                <h2 class="card-title text-xl mb-4">Find Your Booking</h2>
+                <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Email Address</span>
+                        </label>
+                        <input type="email" name="email"
+                               class="input input-bordered"
+                               placeholder="Enter your email">
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Phone Number</span>
+                        </label>
+                        <input type="tel" name="phone"
+                               class="input input-bordered"
+                               placeholder="Enter your phone">
+                    </div>
+                    <div class="form-control flex items-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search mr-2"></i> Find Bookings
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-12">
+                <div class="bg-base-200 rounded-2xl p-8 max-w-md mx-auto">
+                    <i class="fas fa-calendar-times text-4xl text-gray-400 mb-4"></i>
+                    <h3 class="text-xl font-bold text-gray-700 mb-2">No Bookings Found</h3>
+                    <p class="text-gray-500 mb-6">Enter your email or phone to find your bookings</p>
+                    <a href="/Room/Availability" class="btn btn-primary">
+                        <i class="fas fa-bed mr-2"></i> Book a Room Now
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="space-y-6">
+                @foreach (var booking in Model)
+                {
+                    <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+                        <div class="card-body">
+                            <div class="flex flex-col md:flex-row md:items-start md:justify-between">
+                                <div class="mb-4 md:mb-0">
+                                    <div class="flex items-center mb-3">
+                                        <h3 class="text-xl font-bold">Room @booking.Room.RoomNumber</h3>
+                                        <span class="ml-3 badge
+                                                    @(booking.Status == "Confirmed" ? "badge-success" :
+                                                                                            booking.Status == "Pending" ? "badge-warning" :
+                                                                                            booking.Status == "Cancelled" ? "badge-error" : "badge-info")">
+                                            @booking.Status
+                                        </span>
+                                    </div>
+
+                                    <div class="space-y-1 text-gray-600">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-calendar-alt mr-2 w-5"></i>
+                                            <span>
+                                                @booking.CheckInDate.ToString("MMM dd, yyyy") →
+                                                @booking.CheckOutDate.ToString("MMM dd, yyyy")
+                                                (@booking.NumberOfNights nights)
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-user mr-2 w-5"></i>
+                                            <span>@booking.CustomerName • @booking.NumberOfGuests guest(s)</span>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-envelope mr-2 w-5"></i>
+                                            <span>@booking.CustomerEmail</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold">$@booking.TotalAmount</div>
+                                    <div class="text-sm text-gray-600 mb-2">Total Amount</div>
+                                    <div class="space-y-2">
+                                        <div class="text-sm">
+                                            <span class="text-gray-600">Advance Paid:</span>
+                                            <span class="font-medium">$@booking.AdvancePaid</span>
+                                        </div>
+                                        <div class="text-sm">
+                                            <span class="text-gray-600">Remaining:</span>
+                                            <span class="font-medium">$@booking.RemainingAmount</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <div class="flex flex-wrap justify-between items-center">
+                                <div class="text-sm text-gray-600">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-clock mr-2"></i>
+                                        <span>Booked on: @booking.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex space-x-3 mt-4 md:mt-0">
+                                    <a href="/Booking/Details/@booking.Id" class="btn btn-outline">
+                                        <i class="fas fa-eye mr-2"></i> View Details
+                                    </a>
+
+                                    @if (booking.Status == "Pending")
+                                    {
+                                        <a href="/Booking/Payment/@booking.Id" class="btn btn-primary">
+                                            <i class="fas fa-credit-card mr-2"></i> Complete Payment
+                                        </a>
+                                    }
+
+                                    @if (booking.Status == "Pending" || booking.Status == "Confirmed")
+                                    {
+                                        @if (booking.CheckInDate > DateTime.Now.AddHours(24))
+                                        {
+                                            <form asp-action="Cancel" method="post" class="inline">
+                                                <input type="hidden" name="id" value="@booking.Id" />
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-error"
+                                                        onclick="return confirm('Are you sure you want to cancel this booking?')">
+                                                    <i class="fas fa-times mr-2"></i> Cancel
+                                                </button>
+                                            </form>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+                <div class="stats shadow">
+                    <div class="stat">
+                        <div class="stat-title">Total Bookings</div>
+                        <div class="stat-value">@Model.Count</div>
+                    </div>
+                </div>
+                <div class="stats shadow">
+                    <div class="stat">
+                        <div class="stat-title">Total Spent</div>
+                        <div class="stat-value">$@Model.Sum(b => b.TotalAmount)</div>
+                    </div>
+                </div>
+                <div class="stats shadow">
+                    <div class="stat">
+                        <div class="stat-title">Upcoming</div>
+                        <div class="stat-value">@Model.Count(b => b.CheckInDate > DateTime.Today && b.Status != "Cancelled")</div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
